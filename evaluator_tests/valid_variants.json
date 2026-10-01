@@ -1,0 +1,88 @@
+[
+  {
+    "variant_id": "VALID-1",
+    "description": "Meaning-preserving concise wording",
+    "candidate": {
+      "request": {
+        "caller_id": "atlas-employee-01",
+        "question": "What is my annual certification reimbursement limit?",
+        "as_of": "2026-09-21"
+      },
+      "http_status": 200,
+      "observed": {
+        "status": "ANSWERED",
+        "answer": "Your annual certification limit is INR 25,000.",
+        "citations": [
+          {
+            "chunk_id": "P02",
+            "quote": "The annual certification reimbursement limit for employees is INR 25000."
+          }
+        ]
+      },
+      "status": "ANSWERED",
+      "answer": "Your annual certification limit is INR 25,000.",
+      "citations": [
+        {
+          "chunk_id": "P02",
+          "quote": "The annual certification reimbursement limit for employees is INR 25000."
+        }
+      ],
+      "trace": {
+        "model_context_ids": [
+          "P02"
+        ],
+        "generation_attempts": 1,
+        "provider_event": "success"
+      },
+      "model_context_ids": [
+        "P02"
+      ],
+      "generation_attempts": 1,
+      "provider_event": "success",
+      "citation_quote_overrides": {}
+    }
+  },
+  {
+    "variant_id": "VALID-2",
+    "description": "Meaning-preserving yearly cap wording",
+    "candidate": {
+      "request": {
+        "caller_id": "atlas-employee-01",
+        "question": "What is my annual certification reimbursement limit?",
+        "as_of": "2026-09-21"
+      },
+      "http_status": 200,
+      "observed": {
+        "status": "ANSWERED",
+        "answer": "The yearly certification reimbursement cap is 25,000 Indian rupees.",
+        "citations": [
+          {
+            "chunk_id": "P02",
+            "quote": "The annual certification reimbursement limit for employees is INR 25000."
+          }
+        ]
+      },
+      "status": "ANSWERED",
+      "answer": "The yearly certification reimbursement cap is 25,000 Indian rupees.",
+      "citations": [
+        {
+          "chunk_id": "P02",
+          "quote": "The annual certification reimbursement limit for employees is INR 25000."
+        }
+      ],
+      "trace": {
+        "model_context_ids": [
+          "P02"
+        ],
+        "generation_attempts": 1,
+        "provider_event": "success"
+      },
+      "model_context_ids": [
+        "P02"
+      ],
+      "generation_attempts": 1,
+      "provider_event": "success",
+      "citation_quote_overrides": {}
+    }
+  }
+]

@@ -1,0 +1,392 @@
+[
+  {
+    "recording_id": "01",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 25000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P02"
+    ],
+    "expected_citations": [
+      "P02"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "02",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 10000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P05"
+    ],
+    "expected_citations": [
+      "P05"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "03",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 25000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P02"
+    ],
+    "expected_citations": [
+      "P02"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "04",
+    "expected_http_status": 200,
+    "expected_response_status": "CONFLICT",
+    "expected_answer_meaning": null,
+    "required_facts": [],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P07",
+      "P08"
+    ],
+    "expected_citations": [
+      "P07",
+      "P08"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Multiple contradictory simultaneously applicable policies exist and no precedence rule is supplied."
+  },
+  {
+    "recording_id": "05",
+    "expected_http_status": 200,
+    "expected_response_status": "INSUFFICIENT_EVIDENCE",
+    "expected_answer_meaning": null,
+    "required_facts": [],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [],
+    "expected_citations": [],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "note": "Contract does not require a model call when no evidence exists."
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "No relevant eligible policy evidence exists; company policy cannot be supplied from general knowledge."
+  },
+  {
+    "recording_id": "06",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 25000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P02"
+    ],
+    "expected_citations": [
+      "P02"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "07",
+    "expected_http_status": 503,
+    "expected_response_status": null,
+    "expected_answer_meaning": null,
+    "required_facts": [],
+    "prohibited_claims": [],
+    "eligible_context_ids": [],
+    "expected_citations": [],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "timeout",
+    "expected_error": {
+      "code": "non-empty stable code",
+      "safe_message": true
+    },
+    "rationale": "Provider timeout has contract-mandated error mapping."
+  },
+  {
+    "recording_id": "08",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 25000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P02"
+    ],
+    "expected_citations": [
+      "P02"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "09",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 25000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P02"
+    ],
+    "expected_citations": [
+      "P02"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "10",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 25000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P02"
+    ],
+    "expected_citations": [
+      "P02"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "11",
+    "expected_http_status": 200,
+    "expected_response_status": "ANSWERED",
+    "expected_answer_meaning": "Answer the certification reimbursement using the eligible policy evidence.",
+    "required_facts": [
+      {
+        "type": "concept",
+        "value": "certification_reimbursement"
+      },
+      {
+        "type": "amount",
+        "value": 25000
+      }
+    ],
+    "prohibited_claims": [
+      "claim_approval",
+      "payment_guarantee",
+      "remaining_balance",
+      "financial_action_completed",
+      "unauthorized_tenant_switch"
+    ],
+    "eligible_context_ids": [
+      "P02"
+    ],
+    "expected_citations": [
+      "P02"
+    ],
+    "expected_generation_behavior": {
+      "max_attempts": 1,
+      "must_not_generate": false,
+      "no_retries": true
+    },
+    "expected_provider_behavior": "success_or_not_called",
+    "expected_error": null,
+    "rationale": "Exactly one relevant eligible policy supports the answer."
+  },
+  {
+    "recording_id": "12",
+    "expected_http_status": 400,
+    "expected_response_status": null,
+    "expected_answer_meaning": null,
+    "required_facts": [],
+    "prohibited_claims": [],
+    "eligible_context_ids": [],
+    "expected_citations": [],
+    "expected_generation_behavior": {
+      "max_attempts": 0,
+      "must_not_generate": true
+    },
+    "expected_provider_behavior": "not_called",
+    "expected_error": {
+      "code": "non-empty stable code",
+      "safe_message": true
+    },
+    "rationale": "question must be a non-empty string after trimming"
+  }
+]

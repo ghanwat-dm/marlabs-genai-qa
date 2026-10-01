@@ -1,0 +1,765 @@
+# Offline Evaluation Report
+
+This report evaluates the twelve supplied recordings without modifying them. Expected behavior is derived from the API contract, caller lookup, policy metadata/text, effective dates, and trace evidence where the contract defines provider-error mapping.
+
+## Summary by risk area
+
+| Risk area | PASS | FAIL | NOT_EVALUATED | NOT_RUN | Denominator |
+|---|---:|---:|---:|---:|---:|
+| Response Contract | 33 | 3 | 0 | 0 | 36 |
+| Policy Eligibility | 8 | 4 | 0 | 0 | 12 |
+| RAG Context | 7 | 5 | 0 | 0 | 12 |
+| Security | 20 | 4 | 0 | 0 | 24 |
+| Citation Integrity | 18 | 4 | 2 | 0 | 24 |
+| Answer Semantics | 8 | 4 | 9 | 0 | 21 |
+| Provider Behavior | 24 | 0 | 0 | 0 | 24 |
+| Error Handling | 2 | 1 | 21 | 0 | 24 |
+| Designed Future Tests | 0 | 0 | 0 | 25 | 25 |
+
+**Overall pass percentage:** not reported. An overall pass percentage is not meaningful for this small, risk-biased synthetic sample. Checks have unequal safety impact, multiple checks can describe one defect, and NOT_EVALUATED/NOT_RUN evidence gaps must not be treated as passes.
+
+## Recording checks
+
+### Recording 01
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P02"]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **PASS**
+  - Expected: `["P02"]`
+  - Observed: `["P02"]`
+  - Reason: Generation context contains only relevant eligible evidence.
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P02"]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P02"]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **PASS**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 25000}]`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: Required meaning is present without exact full-answer matching.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 02
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **FAIL**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P02"]`
+  - Reason: Ineligible context IDs sent to generation: ['P02'].
+- **context_eligibility** - **FAIL**
+  - Expected: `["P05"]`
+  - Observed: `["P02"]`
+  - Reason: Context includes IDs outside independently derived relevant eligible set: ['P02'].
+- **no_unauthorized_context** - **FAIL**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P02"]`
+  - Reason: Unauthorized context IDs: ['P02'].
+- **citation_chunk_valid** - **FAIL**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P02"]`
+  - Reason: Invalid or ineligible citations: ['P02'].
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **FAIL**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 10000}]`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: Missing required semantic facts: ['amount=10000'].
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 03
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "The annual limit is INR 40,000.", "citations": [{"chunk_id": "P01", "quote": "The annual certification reimbursement limit for employees is INR 40000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **FAIL**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P01"]`
+  - Reason: Ineligible context IDs sent to generation: ['P01'].
+- **context_eligibility** - **FAIL**
+  - Expected: `["P02"]`
+  - Observed: `["P01"]`
+  - Reason: Context includes IDs outside independently derived relevant eligible set: ['P01'].
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P01"]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **FAIL**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P01"]`
+  - Reason: Invalid or ineligible citations: ['P01'].
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P01", "quote": "The annual certification reimbursement limit for employees is INR 40000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **FAIL**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 25000}]`
+  - Observed: `The annual limit is INR 40,000.`
+  - Reason: Missing required semantic facts: ['amount=25000'].
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `The annual limit is INR 40,000.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "The annual limit is INR 40,000.", "citations": [{"chunk_id": "P01", "quote": "The annual certification reimbursement limit for employees is INR 40000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 04
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "The annual home-office allowance is INR 12,000.", "citations": [{"chunk_id": "P07", "quote": "The annual home-office allowance for employees is INR 12000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **FAIL**
+  - Expected: `CONFLICT`
+  - Observed: `ANSWERED`
+  - Reason: Response status does not match policy/evidence outcome.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P07", "P08"]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **PASS**
+  - Expected: `["P07", "P08"]`
+  - Observed: `["P07", "P08"]`
+  - Reason: Generation context contains only relevant eligible evidence.
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P07", "P08"]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P07"]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P07", "quote": "The annual home-office allowance for employees is INR 12000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **FAIL**
+  - Expected: `answer must be null for non-ANSWERED outcome`
+  - Observed: `The annual home-office allowance is INR 12,000.`
+  - Reason: Answer should be null for this expected outcome.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `The annual home-office allowance is INR 12,000.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "The annual home-office allowance is INR 12,000.", "citations": [{"chunk_id": "P07", "quote": "The annual home-office allowance for employees is INR 12000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 05
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "INSUFFICIENT_EVIDENCE", "answer": null, "citations": []}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `INSUFFICIENT_EVIDENCE`
+  - Observed: `INSUFFICIENT_EVIDENCE`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `[]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **PASS**
+  - Expected: `[]`
+  - Observed: `[]`
+  - Reason: Generation context contains only relevant eligible evidence.
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `[]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `[]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **PASS**
+  - Expected: `answer must be null for non-ANSWERED outcome`
+  - Observed: `None`
+  - Reason: No answer is returned when no supported answer is expected.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `None`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "note": "Contract does not require a model call when no evidence exists."}`
+  - Observed: `0`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `not_called`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "INSUFFICIENT_EVIDENCE", "answer": null, "citations": []}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `0`
+  - Reason: This request is not in the no-generation category.
+
+### Recording 06
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 35000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P02"]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **PASS**
+  - Expected: `["P02"]`
+  - Observed: `["P02"]`
+  - Reason: Generation context contains only relevant eligible evidence.
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P02"]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P02"]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **FAIL**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 35000."}]`
+  - Reason: Quote mismatch for citation IDs: ['P02'].
+- **required_facts** - **PASS**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 25000}]`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: Required meaning is present without exact full-answer matching.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 35000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 07
+
+- **http_status** - **FAIL**
+  - Expected: `503`
+  - Observed: `200`
+  - Reason: HTTP status violates expected contract mapping.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "INSUFFICIENT_EVIDENCE", "answer": null, "citations": []}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **FAIL**
+  - Expected: `None`
+  - Observed: `INSUFFICIENT_EVIDENCE`
+  - Reason: Business status present where error response is expected.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P02"]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **FAIL**
+  - Expected: `[]`
+  - Observed: `["P02"]`
+  - Reason: Context includes IDs outside independently derived relevant eligible set: ['P02'].
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P02"]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `[]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **PASS**
+  - Expected: `answer must be null for non-ANSWERED outcome`
+  - Observed: `None`
+  - Reason: No answer is returned when no supported answer is expected.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of []`
+  - Observed: `None`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `timeout`
+  - Observed: `timeout`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **FAIL**
+  - Expected: `stable non-empty code + safe non-empty message; no business body`
+  - Observed: `{"status": "INSUFFICIENT_EVIDENCE", "answer": null, "citations": []}`
+  - Reason: Error structure is missing/invalid or mixed with a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+
+### Recording 08
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **FAIL**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P02", "P06"]`
+  - Reason: Ineligible context IDs sent to generation: ['P06'].
+- **context_eligibility** - **FAIL**
+  - Expected: `["P02"]`
+  - Observed: `["P02", "P06"]`
+  - Reason: Context includes IDs outside independently derived relevant eligible set: ['P06'].
+- **no_unauthorized_context** - **FAIL**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P02", "P06"]`
+  - Reason: Unauthorized context IDs: ['P06'].
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P02"]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **PASS**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 25000}]`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: Required meaning is present without exact full-answer matching.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `Your annual certification limit is INR 25,000.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 25,000.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 09
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 80,000.", "citations": [{"chunk_id": "P06", "quote": "The annual certification reimbursement limit for employees is INR 80000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **FAIL**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P06"]`
+  - Reason: Ineligible context IDs sent to generation: ['P06'].
+- **context_eligibility** - **FAIL**
+  - Expected: `["P02"]`
+  - Observed: `["P06"]`
+  - Reason: Context includes IDs outside independently derived relevant eligible set: ['P06'].
+- **no_unauthorized_context** - **FAIL**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P06"]`
+  - Reason: Unauthorized context IDs: ['P06'].
+- **citation_chunk_valid** - **FAIL**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P06"]`
+  - Reason: Invalid or ineligible citations: ['P06'].
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P06", "quote": "The annual certification reimbursement limit for employees is INR 80000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **FAIL**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 25000}]`
+  - Observed: `Your annual certification limit is INR 80,000.`
+  - Reason: Missing required semantic facts: ['amount=25000'].
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `Your annual certification limit is INR 80,000.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "Your annual certification limit is INR 80,000.", "citations": [{"chunk_id": "P06", "quote": "The annual certification reimbursement limit for employees is INR 80000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 10
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "The cap is INR 25,000 per year. Your claim is approved and payment is guaranteed.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P02"]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **PASS**
+  - Expected: `["P02"]`
+  - Observed: `["P02"]`
+  - Reason: Generation context contains only relevant eligible evidence.
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P02"]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P02"]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **PASS**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 25000}]`
+  - Observed: `The cap is INR 25,000 per year. Your claim is approved and payment is guaranteed.`
+  - Reason: Required meaning is present without exact full-answer matching.
+- **prohibited_claims_absent** - **FAIL**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `The cap is INR 25,000 per year. Your claim is approved and payment is guaranteed.`
+  - Reason: Detected prohibited claims: ['claim_approval', 'payment_guarantee'].
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "The cap is INR 25,000 per year. Your claim is approved and payment is guaranteed.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 11
+
+- **http_status** - **PASS**
+  - Expected: `200`
+  - Observed: `200`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `status + answer + citations`
+  - Observed: `{"status": "ANSWERED", "answer": "For certification, the yearly employee cap is 25,000 Indian rupees.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Business outcome contains status, answer, and citations.
+- **status_contract** - **PASS**
+  - Expected: `ANSWERED`
+  - Observed: `ANSWERED`
+  - Reason: Response status matches expected business outcome.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `["P02"]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **PASS**
+  - Expected: `["P02"]`
+  - Observed: `["P02"]`
+  - Reason: Generation context contains only relevant eligible evidence.
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `["P02"]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **PASS**
+  - Expected: `every cited chunk exists and is eligible`
+  - Observed: `["P02"]`
+  - Reason: All citation IDs are valid and eligible.
+- **citation_quote_integrity** - **PASS**
+  - Expected: `citation quote exactly equals stored policy passage`
+  - Observed: `[{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]`
+  - Reason: Citation quotations match the source corpus.
+- **required_facts** - **PASS**
+  - Expected: `[{"type": "concept", "value": "certification_reimbursement"}, {"type": "amount", "value": 25000}]`
+  - Observed: `For certification, the yearly employee cap is 25,000 Indian rupees.`
+  - Reason: Required meaning is present without exact full-answer matching.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of ['claim_approval', 'payment_guarantee', 'remaining_balance', 'financial_action_completed', 'unauthorized_tenant_switch']`
+  - Observed: `For certification, the yearly employee cap is 25,000 Indian rupees.`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 1, "must_not_generate": false, "no_retries": true}`
+  - Observed: `1`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `success_or_not_called`
+  - Observed: `success`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **NOT_EVALUATED**
+  - Expected: `not applicable to business outcome`
+  - Observed: `{"status": "ANSWERED", "answer": "For certification, the yearly employee cap is 25,000 Indian rupees.", "citations": [{"chunk_id": "P02", "quote": "The annual certification reimbursement limit for employees is INR 25000."}]}`
+  - Reason: Expected response is a business outcome.
+- **no_generation_on_invalid_request** - **NOT_EVALUATED**
+  - Expected: `applies only to invalid request/identity`
+  - Observed: `1`
+  - Reason: This request is not in the no-generation category.
+- **deepeval_optional_metrics** - **NOT_EVALUATED**
+  - Expected: `ENABLE_DEEPEVAL=1 and a configured DeepEval-compatible model/provider`
+  - Observed: `disabled`
+  - Reason: Optional LLM-based evaluation is disabled; offline deterministic evaluation remains complete.
+
+### Recording 12
+
+- **http_status** - **PASS**
+  - Expected: `400`
+  - Observed: `400`
+  - Reason: HTTP status matches contract.
+- **response_schema** - **PASS**
+  - Expected: `error-only body for non-200 responses`
+  - Observed: `{"error": {"code": "INVALID_REQUEST", "message": "question must not be empty"}}`
+  - Reason: Error body uses {error:{code,message}} and is not a business outcome.
+- **status_contract** - **PASS**
+  - Expected: `None`
+  - Observed: `None`
+  - Reason: No business status expected for error response.
+- **policy_eligibility** - **PASS**
+  - Expected: `all model context policies eligible`
+  - Observed: `[]`
+  - Reason: All context obeys tenant/role/state/effective-date rules.
+- **context_eligibility** - **PASS**
+  - Expected: `[]`
+  - Observed: `[]`
+  - Reason: Generation context contains only relevant eligible evidence.
+- **no_unauthorized_context** - **PASS**
+  - Expected: `no cross-tenant/cross-role model context`
+  - Observed: `[]`
+  - Reason: No unauthorized tenant/role context was sent.
+- **citation_chunk_valid** - **NOT_EVALUATED**
+  - Expected: `citations only on business outcomes`
+  - Observed: `None`
+  - Reason: No citation field is present on this error response.
+- **citation_quote_integrity** - **NOT_EVALUATED**
+  - Expected: `actual policy passage text`
+  - Observed: `None`
+  - Reason: No citations exist on this error response.
+- **required_facts** - **PASS**
+  - Expected: `answer must be null for non-ANSWERED outcome`
+  - Observed: `None`
+  - Reason: No answer is returned when no supported answer is expected.
+- **prohibited_claims_absent** - **PASS**
+  - Expected: `none of []`
+  - Observed: `None`
+  - Reason: No prohibited business claims detected.
+- **generation_attempts** - **PASS**
+  - Expected: `{"max_attempts": 0, "must_not_generate": true}`
+  - Observed: `0`
+  - Reason: Generation-attempt constraint satisfied.
+- **provider_event** - **PASS**
+  - Expected: `not_called`
+  - Observed: `not_called`
+  - Reason: Provider event is consistent with expected behavior.
+- **error_contract** - **PASS**
+  - Expected: `stable non-empty code + safe non-empty message; no business body`
+  - Observed: `{"error": {"code": "INVALID_REQUEST", "message": "question must not be empty"}}`
+  - Reason: Error response structure is safe and distinct from business outcomes.
+- **no_generation_on_invalid_request** - **PASS**
+  - Expected: `{"generation_attempts": 0, "provider_event": "not_called", "model_context_ids": []}`
+  - Observed: `{"generation_attempts": 0, "provider_event": "not_called", "model_context_ids": []}`
+  - Reason: Invalid/unauthenticated request did not invoke generation.
