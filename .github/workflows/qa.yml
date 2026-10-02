@@ -25,3 +25,7 @@ jobs:
         with:
           name: evaluation-report
           path: reports/
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-html
+    
